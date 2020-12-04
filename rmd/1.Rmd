@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 Load the libraries:
-```{r}
+```{r message=FALSE}
 library(tidyverse)
 library(stringr)
 library(Cairo)
@@ -19,40 +19,40 @@ library(showtext)
 ```
 
 Font:
-```{r}
+```{r message=FALSE}
 font_add_google(name = "Playfair Display", family = "playfair")
 ```
 
 Loading the data:
-```{r}
+```{r message=FALSE}
 hike_data <- readr::read_rds(url('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-11-24/hike_data.rds'))
 ```
 
 Data manipulation:
 
 Extract regions:
-```{r}
+```{r message=FALSE}
 word(hike_data$location, 1, sep = " -- ") -> hike_data$region
 hike_data$region <- as.factor(hike_data$region)
 ```
 
 Extract miles:
-```{r}
+```{r message=FALSE}
 hike_data$length_num <- parse_number(hike_data$length)
 ```
 
-```{r}
+```{r message=FALSE}
 hike_data$trackNr <- as.numeric(row.names(hike_data))
 ```
 
 Converting data types
-```{r}
+```{r message=FALSE}
 hike_data <- hike_data %>% 
   mutate_at(c("gain", "highpoint", "rating"), as.numeric)
 ```
 
 Calculate cummulative length, mean(gain)
-```{r}
+```{r message=FALSE}
 summary_stats <- hike_data %>% 
   group_by(region) %>% 
   summarise(sum_length = sum(length_num),
@@ -66,16 +66,16 @@ summary_stats <- hike_data %>%
 ## Data Visualization:
 
 Color choice:
-```{r}
+```{r message=FALSE}
 prismatic::color(c( "#6C5B7B" ,"#C06C84","#F67280","#F8B195"))
 ```
 
-```{r fig.width=8.25, fig.height=11.75}
+```{r fig.width=8.25, fig.height=11.75, message=FALSE}
 showtext_auto()
 
 summary_stats$region <- forcats::fct_reorder(str_wrap(summary_stats$region, 5), summary_stats$sum_length)
 
-ggplot(summary_stats) + 
+plot <- ggplot(summary_stats) + 
   # custom panel grid
   geom_hline(yintercept = 0, color = "lightgrey") +
   geom_hline(yintercept = 1000, color = "lightgrey") +
@@ -176,12 +176,12 @@ ggplot(summary_stats) +
 ```
 
 Saving the plot:
-```{r}
+```{r message=FALSE, eval = FALSE}
 ggsave(
   path = here::here("output"),
   filename = "1.pdf",
-  width = 8.25, #din A4 width
-  height = 11.75, #din A4 height
+  width = 8.25,
+  height = 11.75,
   units = "in",
   dpi = 300
 )
