@@ -1,0 +1,202 @@
+---
+title: "Historical Phones Turkey"
+author: "Sajib Devnath"
+date: "12/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Libraries:
+```{r}
+library(tidyverse)
+library(waffle)
+library(hrbrthemes)
+library(ggtext)
+library(showtext)
+library(here)
+```
+
+
+Fonts:
+```{r fonts}
+
+```
+Data:
+```{r}
+tt <- tidytuesdayR::tt_load(2020, week = 46)
+mobile <- tt$mobile
+```
+
+## Data manipulation:
+```{r}
+sub_mobile <- mobile %>% 
+  filter(entity == "Turkey") %>% 
+  mutate(mobile_subs = round(mobile_subs, 0)) %>% 
+  filter(year %in% c(1997, 2007, 2017)) %>% 
+  select(year, mobile_subs) %>% 
+  mutate(no_subs = 100 - mobile_subs) %>% 
+  pivot_longer(!year, names_to = "subscription", values_to = "n")
+
+```
+
+```{r}
+
+ggplot(sub_mobile, aes(label = subscription, values = n)) +
+  geom_pictogram(
+    aes(colour = subscription),
+    size = 5,
+    n_rows = 10,
+    make_proportional = TRUE
+    ) +
+  scale_label_pictogram(
+    guide = FALSE,
+  ) +
+   coord_equal() +
+  theme_ipsum_rc(grid="") +
+  theme_enhance_waffle() +
+  theme(legend.key.height = unit(2.25, "line")) +
+  theme(legend.text = element_text(size = 10, hjust = 0, vjust = 0.75))
+
+```
+
+```{r}
+
+data.frame(
+  parts = factor(rep(month.abb[1:3], 3), levels=month.abb[1:3]),
+  vals = c(10, 20, 30, 6, 14, 40, 30, 20, 10),
+  col = rep(c("blue", "black", "red"), 3),
+  fct = c(rep("Thing 1", 3),
+          rep("Thing 2", 3),
+          rep("Thing 3", 3))
+) -> xdf
+
+xdf %>%
+  count(parts, wt = vals) %>%
+  ggplot(aes(label = parts, values = n)) +
+  geom_pictogram(n_rows = 10, aes(colour = parts), flip = TRUE, make_proportional = TRUE) +
+  scale_color_manual(
+    name = NULL,
+    values = c("#a40000", "#c68958", "#ae6056"),
+    labels = c("Fruit", "Sammich", "Pizza")
+  ) +
+  scale_label_pictogram(
+    name = NULL,
+    values = c("apple-alt", "bread-slice", "pizza-slice"),
+    labels = c("Fruit", "Sammich", "Pizza")
+  ) +
+  coord_equal() +
+  theme_ipsum_rc(grid="") +
+  theme_enhance_waffle() +
+  theme(legend.key.height = unit(2.25, "line")) +
+  theme(legend.text = element_text(size = 10, hjust = 0, vjust = 0.75))
+```
+
+
+
+```{r}
+
+tibble(
+  food_group = factor(
+    c("Fruit", "Sandwiches", "Pizza"),
+    levels=c("Fruit", "Sandwiches", "Pizza")
+  ),
+  consumption = c(5, 20, 52)
+) -> xdf
+
+ggplot(xdf, aes(label = food_group, values = consumption)) +
+  geom_pictogram(n_rows = 10, make_proportional = TRUE, color = "black") +
+  scale_label_pictogram(
+    name = NULL,
+    values = c(
+      Fruit = "apple-alt", 
+      Sandwiches = emoji('cow'), 
+      Pizza = emoji('cow')
+    )
+  ) +
+  coord_equal() +
+  theme_ipsum_rc(grid="") +
+  theme_enhance_waffle() +
+  theme(legend.key.height = unit(2.25, "line")) +
+  theme(legend.text = element_text(size = 10, hjust = 0, vjust = 0.75))
+```
+
+
+
+```{r}
+
+library(ggplot2)
+library(waffle)
+library(extrafont)
+
+vec <- c(`Category 1 (10)`= 10 , `Category 2 (20)`= 20,
+              `Category 3 (25)`= 24, `Category 4 (16)` = 16)
+
+waffle(vec/2, rows=3, size=0.1, 
+       colors=c("#c7d4b6", "#a3aabd", "#a0d0de", "#97b5cf"), 
+       title="Four different categories of something", 
+       xlab="1 square = 2 somethings")
+```
+
+```{r}
+library(emojifont)
+
+search_emoji('smile')
+```
+
+
+```{r}
+
+```
+
+
+
+```{r}
+ggplot(mtcars) + 
+  geom_text(aes(mpg, wt, colour = factor(cyl)),
+            label = intToUtf8(fa_df[fa_df$codes == "fa-car", "char_int"]),
+            family = "FontAwesome",
+            size = 12)
+```
+
+
+```{r}
+x <- rnorm(10)
+set.seed(321)
+y <- rnorm(10)
+plot(x, y, cex=0)
+text(x, y, labels=emoji('cow'), cex=1.5, col='steelblue', family='EmojiOne')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
