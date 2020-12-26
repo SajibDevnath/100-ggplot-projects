@@ -1,0 +1,219 @@
+---
+title: '#7 100-ggplots Sunburst Chart - BBC 100 Women'
+author: "Sajib Devnath"
+date: "12/17/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Libraries:
+```{r}
+library(tidyverse)
+library(plotly) # for interactive sunburst chart
+library(htmlwidgets) # to save widget
+library(tidytext)
+library(wordcloud2)
+library(ggwordcloud)
+```
+
+
+Data:
+```{r}
+tt <- tidytuesdayR::tt_load("2020-12-08")
+women <- tt$women
+```
+```{r}
+women %>% 
+  select(description) %>% 
+  tidytext::unnest_tokens(output = word, input = description) %>% 
+  filter(str_detect(word, "[:alpha:]")) %>% 
+  anti_join(stop_words, by = "word") %>% 
+  as_tibble() -> words
+
+
+```
+
+```{r}
+words %>% 
+  count(word, sort = TRUE, name =  "freq") -> wds
+```
+```{r}
+wds
+
+wds %>% 
+   mutate(pallete_a = cut(freq, breaks = c(0,1,2,3,4,5,6,7,8,9,10,11,13,17),
+                                    labels = c("#ECE7F2", "#ECE7F2", "#D0D1E6", "#A6BDDB", "#A6BDDB", "#74A9CF", "#74A9CF", "#3690C0", "#3690C0", "#0570B0", "#0570B0", "#045A8D", "#023858"))) -> wds2
+```
+
+```{r}
+set.seed(42)
+ggplot(wds2[1:40,], aes(label = word, size = freq)) +
+  geom_text_wordcloud() +
+  scale_size_area(max_size = 40) +
+  scale_color_gradient(low = "darkred", high = "red")
+```
+```{r}
+set.seed(42)
+(ggplot(wds2, aes(label = word, size = freq)) +
+  geom_text_wordcloud_area(
+    aes(angle = 45 * sample(-2:2, nrow(wds2),
+    replace = TRUE,
+    prob = c(1, 1, 4, 1, 1)
+  )),
+  mask = png::readPNG(system.file("extdata/hearth.png",
+    package = "ggwordcloud", mustWork = TRUE
+  )),
+  rm_outside = TRUE
+  ) +
+  scale_size_area(400) +
+  theme_minimal() +
+  scale_color_gradient(low = "darkred", high = "red") -> wd)
+```
+
+```{r}
+wordcloud2(
+  wds2, 
+  figPath = here::here("img", "woman_silhoutte.png"),
+  minRotation = 0,
+  maxRotation = 0,
+  size = 0.5
+) -> wd
+```
+
+
+
+```{r}
+htmlwidgets::saveWidget(wd, "wd.html")
+webshot::webshot("wd.html", "wordcloud.png", delay = 5, vwidth = 693, vheight = 777)
+```
+
+```{r}
+wordcloud2(wds)
+```
+
+
+Manipulation:
+
+prepare df1
+```{r}
+# prep dataframe1
+labels <- c("All", "Creativity", "Identity", "Knowledge", "Leadership")
+values <- c(1, 21, 17, 32, 29)
+parents <- c("", "", "", "", "")
+ids <- c("All", "Creativity", "Identity", "Knowledge", "Leadership")
+img <- c("", "", "", "", "")
+country <- c("various", "various", "various", "various", "various")
+role <- c("various", "various", "various", "various", "various")
+description <- c("n = 1", "n = 21", "n = 17", "n = 32", "n = 29")
+colors <- c("#e8f72f", "#9d02d7", "#34dd26", "#0000ff", "#ffb14e")
+df1 <- data.frame(labels, values, parents, ids, img, country, role, description, colors)
+```
+
+prepare df2
+```{r}
+df2 <- women %>%
+  rename(labels = name,
+         parents = category) %>%
+  mutate(values = rep(1),
+         ids = paste(parents, " - ", labels)) %>%
+  mutate(colors = case_when(
+    parents == "All" ~ "#e8f72f",
+    parents == "Creativity" ~ "#9d02d7",
+    parents == "Identity" ~ "#34dd26",
+    parents == "Knowledge" ~ "#0000ff",
+    parents == "Leadership" ~ "#ffb14e"
+  )) %>%
+  select(labels, values, parents, ids, img, country, role, description, colors)
+```
+
+
+```{r}
+# bind dataframes
+women2 <- rbind(df1, df2)
+# break up long descriptive label for sunburst chart hover text
+women2$description2 <- stringr::str_wrap(women2$description, width = 100)
+```
+
+
+```{r}
+fig <- plot_ly(
+  women2, 
+  ids = ~ids, 
+  labels = ~labels, 
+  parents = ~parents, 
+  type = 'sunburst',
+  insidetextorientation='radial',
+  hovertemplate = glue::glue(
+      "<b>{women2$labels}</b><br>",
+      "<b>Country: {women2$country}</b><br>",
+      "<b>Role: {women2$role}</b><br>",
+      "{women2$description2}",
+      "<extra></extra>"),
+  marker = list(colors = ~colors)
+  ) %>%
+  layout(title = list(text = "<b>The BBC's 100 women of 2020</b>")) %>%
+  layout(paper_bgcolor='rgba(60,174,163,1)')
+fig
+```
+
+```{r}
+library(plotly)
+
+fig <- plot_ly(
+  labels = c("Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"),
+  parents = c("", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve"),
+  values = c(10, 14, 12, 10, 2, 6, 6, 4, 4),
+  type = 'sunburst'
+)
+
+fig
+```
+
+```{r}
+dfx <- data.frame(
+  l = c("Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"),
+  p = c("", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve"),
+  values = c(10, 14, 12, 10, 2, 6, 6, 4, 4)
+)
+
+plot_ly(
+  dfx, 
+  labels = ~l,
+  parents = ~p,
+  values = ~ values,
+  type = "sunburst"
+)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
