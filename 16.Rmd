@@ -1,0 +1,90 @@
+---
+title: '#16 Chicklet Chart'
+author: "Sajib Devnath"
+date: "12/31/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Libraries:
+
+```{r}
+pacman::p_load(tidyverse, ggchicklet, extrafont, hrbrthemes)
+extrafont::loadfonts(device = 'win',  quiet = TRUE)
+```
+
+
+Data: 
+
+```{r}
+dt_rand <- tibble(
+  Sport = c("NFL", "NFL", "NFL", "MLB", "MLB", "MLB", "NBA", "NBA",
+            "NBA", "NHL", "NHL", "NHL", "EPL", "EPL", "EPL"),
+  Type = c("Game Action", "Nonaction", "Commercials", "Game Action", 
+            "Nonaction", "Commercials", "Game Action", "Nonaction", "Commercials", 
+            "Game Action", "Nonaction", "Commercials", "Game Action", "Nonaction", 
+            "Commercials"),
+  Time = c(18, 140.6, 49.9, 22.5, 150.9, 51.8, 49.6, 61.8,
+           33.5, 63, 56.6, 37.4, 58.7, 47.8, 10.1)
+  )
+```
+
+
+
+
+```{r fig.width=16, fig.width=6}
+dt_rand %>% 
+  ggplot(aes(reorder(Sport, -Time), Time, label = Time)) +
+  geom_chicklet(aes(fill = Type), position = ggplot2::position_fill()) +
+  geom_text(position = position_fill(hjust = .5), color = "white", fontface = "bold") +
+  scale_fill_manual(values = c("#222831", "#30475e", "#f05454")) +
+  coord_flip() +
+  theme_minimal() +
+  theme(
+    legend.position = "top"
+  )
+```
+
+
+
+https://www.mikelee.co/posts/2020-02-08-recreate-fivethirtyeight-chicklet-stacked-bar-chart-in-ggplot2/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
