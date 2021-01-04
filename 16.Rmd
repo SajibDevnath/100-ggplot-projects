@@ -36,16 +36,24 @@ dt_rand <- tibble(
 
 
 
-```{r fig.width=16, fig.width=6}
+```{r fig.width=8, fig.height=5}
 dt_rand %>% 
-  ggplot(aes(reorder(Sport, -Time), Time, label = Time)) +
+  group_by(Sport) %>% mutate(Percent = Time/sum(Time)) %>% ungroup() %>% 
+  mutate(Sport = fct_relevel(
+    Sport,
+    rev(c("NFL", "MLB", "NBA", "NHL", "EPL")))
+  ) %>% 
+  mutate(Type = fct_relevel(
+    Type,
+    c("Commercials","Nonaction","Game Action"))) %>% 
+  ggplot(aes(Sport, Percent, label = Time)) +
   geom_chicklet(aes(fill = Type), position = ggplot2::position_fill()) +
-  geom_text(position = position_fill(hjust = .5), color = "white", fontface = "bold") +
   scale_fill_manual(values = c("#222831", "#30475e", "#f05454")) +
   coord_flip() +
   theme_minimal() +
   theme(
-    legend.position = "top"
+    legend.position = "top", 
+    axis.text.x = element_blank()
   )
 ```
 
