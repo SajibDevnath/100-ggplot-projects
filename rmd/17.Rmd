@@ -1,0 +1,100 @@
+---
+title: '#17'
+author: "Sajib Devnath"
+date: "1/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Library: 
+
+```{r}
+pacman::p_load(tidyverse, hrbrthemes, extrafont, geofacet, patchwork)
+extrafont::loadfonts(device = 'win',  quiet = TRUE)
+```
+
+
+
+Data: 
+
+```{r}
+big_mac <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-12-22/big-mac.csv') %>% mutate(year = lubridate::year(date)) 
+```
+
+
+Data Crunching:
+
+```{r}
+big_mac %>% 
+  mutate(year = lubridate::year(date)) %>% 
+  filter(date == min(date)) %>% 
+  pull(iso_a3) -> countries
+```
+
+```{r}
+years <- c(2000, 2005, 2015, 2010, 2020)
+
+big_mac %>% 
+  filter(year %in% years, iso_a3 %in% countries) %>% 
+  group_by(iso_a3, name, year) %>% 
+  summarise(dollar_price = mean(dollar_price)) %>% 
+  filter(year %in% c(2000, 2020)) %>%
+  mutate(year = as.character(year),
+         dollar_price = if_else(year == "2000", dollar_price * 1.51, dollar_price)) %>% 
+  arrange(name, year) %>% 
+  group_by(name) %>% 
+  mutate(change_num = (dollar_price - lead(dollar_price))/dollar_price,
+         change_num = if_else(is.na(change_num), 
+                              lag(change_num), change_num)) %>% 
+  ungroup() %>% 
+  mutate(increase = change_num > 0,
+         rel_chane = case_when(change_num > 0.1 ~ "More than 10% decrease",
+                               change_num < -0.1 ~ "More than 10% increase",
+                               TRUE ~ "Changes within 10%"),
+         rel_chane = fct_relevel(rel_chane, 
+                                 "More than 10% increase",
+                                 "Changes within 10%")) -> plot_data
+
+
+  
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -85,13 +85,14 @@ grid.draw(gt)
 
 ```
 
+![](/uploads/16.png)
+
 ```{r}
 ggsave(here::here("output", "16.png"), plot = gt, width = 10, height = 5, type="cairo", dpi = 600)
 ```
-https://www.mikelee.co/posts/2020-02-08-recreate-fivethirtyeight-chicklet-stacked-bar-chart-in-ggplot2/
 
 
-
+From: [Michael Lee](https://www.mikelee.co/posts/2020-02-08-recreate-fivethirtyeight-chicklet-stacked-bar-chart-in-ggplot2/)
 
 
 
