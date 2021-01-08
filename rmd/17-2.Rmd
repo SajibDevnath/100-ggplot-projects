@@ -78,6 +78,9 @@ transit_plot %>%
 ```
 
 
+```{r}
+ggsave(here::here("output", "17.png"), plot = last_plot(), width = 10, height = 10, type="cairo", dpi = 600)
+```
 
 
 
